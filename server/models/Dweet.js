@@ -1,10 +1,10 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
-// create our User model
-class User extends Model {}
+// create our Dweet model
+class Dweet extends Model {}
 
-User.init(
+Dweet.init(
   {
     // define an id column
     id: {
@@ -17,28 +17,25 @@ User.init(
       // turn on auto increment
       autoIncrement: true,
     },
-    // define a username column
-    username: {
-      type: DataTypes.STRING,
+    user_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-    },
-    // define an email column
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      // there cannot be any duplicate email values in this table
-      unique: true,
-      // if allowNull is set to false, we can run our data through validators before creating the table data
-      validate: {
-        isEmail: true,
+      references: {
+        model: "user",
+        key: "id",
       },
     },
-    // define a password column
-    password: {
+    title: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        // this means the password must be at least four characters long
+        len: [4],
+      },
+    },
+    desc: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
         len: [4],
       },
     },
@@ -48,8 +45,8 @@ User.init(
     timestamps: false,
     freezeTableName: true,
     underscored: true,
-    modelName: "user",
+    modelName: "dweet",
   }
 );
 
-module.exports = User;
+module.exports = Dweet;
