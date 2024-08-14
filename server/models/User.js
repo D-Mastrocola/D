@@ -8,47 +8,6 @@ class User extends Model {
   checkPassword(loginPw) {
     return bcrypt.compareSync(loginPw, this.password);
   }
-
-  static upvote(body, models) {
-    return models.Vote.create({
-      user_id: body.user_id,
-      dweet_id: body.dweet_id,
-    }).then(() => {
-      return Dweet.findOne({
-        where: {
-          id: body.dweet_id,
-        },
-        attributes: [
-          "id",
-          "dweet_url",
-          "title",
-          "created_at",
-          [
-            sequelize.literal(
-              "(SELECT COUNT(*) FROM like WHERE dweet.id = like.dweet_id)"
-            ),
-            "like_count",
-          ],
-        ],
-        include: [
-          {
-            model: models.Comment,
-            attributes: [
-              "id",
-              "comment_text",
-              "dweet_id",
-              "user_id",
-              "created_at",
-            ],
-            include: {
-              model: models.User,
-              attributes: ["username"],
-            },
-          },
-        ],
-      });
-    });
-  }
 }
 
 User.init(

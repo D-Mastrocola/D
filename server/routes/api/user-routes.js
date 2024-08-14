@@ -1,5 +1,6 @@
 const router = require("express").Router();
-const { User } = require("../../models");
+const { Dweet, User, Comment, Like } = require("../../models");
+const withAuth = require("../../utils/auth");
 
 // GET /api/users
 router.get("/", (req, res) => {
@@ -42,7 +43,7 @@ router.get("/:id", (req, res) => {
 });
 
 // POST api/user
-router.post("/", (req, res) => {
+router.post("/", withAuth, (req, res) => {
   // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
   User.create({
     username: req.body.username,
@@ -65,7 +66,7 @@ router.post("/", (req, res) => {
     });
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", withAuth, (req, res) => {
   // expects {email: 'lernantino@gmail.com', password: 'password1234'}
   User.findOne({
     where: {
@@ -105,14 +106,24 @@ router.post("/logout", (req, res) => {
   }
 });
 
+//PUT /api/dweet/like
+router.put("/like", withAuth, (req, res) => {
+  // custom static method created in models/Dweet.js
+  Dweet.like(req.body, { Like, Comment, User })
+    .then((updatedPostData) => res.json(updatedPostData))
+    .catch((err) => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 // PUT /api/user/1
-router.put("/:id", (req, res) => {
+router.put("/:id", withAuth, (req, res) => {
   // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
 
   // if req.body has exact key/value pairs to match the model, you can just use `req.body` instead
   User.update(
     {
-      monthly_income: req.body.monthly_income,
       username: req.body.username,
       email: req.body.email,
       password: req.body.password,
@@ -138,7 +149,7 @@ router.put("/:id", (req, res) => {
 });
 
 // DELETE /api/user/1
-router.delete("/:id", (req, res) => {
+router.delete("/:id", withAuth, (req, res) => {
   User.destroy({
     where: {
       id: req.params.id,

@@ -2,7 +2,47 @@ const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../config/connection");
 
 // create our Dweet model
-class Dweet extends Model {}
+class Dweet extends Model {
+  static like(body, models) {
+    return models.Like.create({
+      user_id: body.user_id,
+      dweet_id: body.dweet_id,
+    }).then(() => {
+      return Dweet.findOne({
+        where: {
+          id: body.dweet_id,
+        },
+        attributes: [
+          "id",
+          "title",
+          "created_at",
+          [
+            sequelize.literal(
+              "(SELECT COUNT(*) FROM like WHERE dweet.id = like.dweet_id)"
+            ),
+            "like_count",
+          ],
+        ],
+        /*include: [
+          {
+            model: models.Comment,
+            attributes: [
+              "id",
+              "comment_text",
+              "dweet_id",
+              "user_id",
+              "created_at",
+            ],
+            include: {
+              model: models.User,
+              attributes: ["username"],
+            },
+          },
+        ],*/
+      });
+    });
+  }
+}
 
 Dweet.init(
   {
