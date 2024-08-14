@@ -110,7 +110,7 @@ router.post("/logout", (req, res) => {
 router.put("/like", withAuth, (req, res) => {
   // custom static method created in models/Dweet.js
   Dweet.like(req.body, { Like, Comment, User })
-    .then((updatedPostData) => res.json(updatedPostData))
+    .then((updatedDweetData) => res.json(updatedDweetData))
     .catch((err) => {
       console.log(err);
       res.status(400).json(err);
